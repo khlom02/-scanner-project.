@@ -4,6 +4,10 @@ import subprocess
 import os
 import re
 import pandas as pd
+import spacy
+
+# Cargar el modelo en español de spaCy
+nlp = spacy.load("es_core_news_md")  # Usa tu modelo entrenado si es necesario
 
 # Configurar la ruta a Tesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -23,54 +27,47 @@ def validate_image_path(image_path):
         return False
     return True
 
+def match_patterns(pattern_list, text):
+    """Buscar coincidencias usando una lista de patrones."""
+    for pattern in pattern_list:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return match.group(0)
+    return "No encontrado"
 
 def extract_data_from_text(text):
     """Filtrar datos (empresa, fecha y monto total) usando expresiones regulares más robustas."""
     
     # Expresiones regulares mejoradas
-    empresa_pattern = r"(?:GOMAS(?: Y REPUESTOS)?|IMPORTADORA(?: Y EXPORTADORA)?[\w\s]+(?:LIMITADA)?)"
-    fecha_pattern = r"\b\d{1,2}/\d{1,2}/\d{4}\b"  # Solo fechas, excluye horas
-    monto_pattern = r"(?i)total[:\s]*\$?\s?(\d{1,3}(?:[.,]\d{3})*(?:\.\d{2})?)"
+    patterns = {
+        "empresa": [
+             r"(?:GOMAS(?: Y REPUESTOS)?|IMPORTADORA(?: Y EXPORTADORA)?[\w\s]+(?:LIMITADA)?|TRICOT|CENCOSUD RETAIL(?:SANTA(?: ISABEL)?)?)",
+            r"([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)",  # Nuevos formatos de empresas
+        ],
+        "fecha": [
+            r"\b\d{1,2}/\d{1,2}/\d{4}\b",  # dd/mm/yyyy
+            r"\b\d{4}-\d{1,2}-\d{1,2}\b",  # yyyy-mm-dd
+        ],
+        "monto": [
+            r"(?i)total[:\s]*\$?\s?(\d{1,3}(?:[.,]\d{3})*(?:\.\d{2})?)",
+            r"(?i)importe[:\s]*\$?\s?(\d{1,3}(?:[.,]\d{3})*(?:\.\d{2})?)",
+        ]
+    }
     
     # Buscar todas las coincidencias posibles
-    empresas = re.findall(empresa_pattern, text, re.IGNORECASE)
-    fechas = re.findall(fecha_pattern, text)
-    montos = re.findall(monto_pattern, text)
+    empresa = match_patterns(patterns["empresa"], text)
+    fecha = match_patterns(patterns["fecha"], text)
+    total = match_patterns(patterns["monto"], text)
     
-    # Procesar resultados
-    empresa = empresas[0].strip() if empresas else "Empresa no encontrada"
-    fecha = fechas[0] if fechas else "Fecha no encontrada"
-    total = montos[-1].replace(",", ".") if montos else "Monto no encontrado"  # Tomar el último monto encontrado
+    # Procesar los datos
+    total = total.replace(",", ".") if total != "No encontrado" else "Monto no encontrado"
     
     return empresa, fecha, total
 
-# Ejemplo de prueba
-texto = """
-IMPORTADORA Y EXPORTADORA +) INMAN LIMITADA
-SAN FRANCISCO 735,PUERTO VARAS
-
-Tel: +560968576766
-
-Fecha: 3/12/2024 20:28 IMP:PC-202310311553
-
-Can. Pre. Descripcion Suma
-
-=1x 2 Articulo 2 PESO
-1x7,990 -15% Artículo 7990 PES 6, 782
-
-Total 6,790 PESO
-Entregado 6,790
-
-Fac.Simpli.No, 3454
-
-NO HACEMOS DEVOLUCION EN EFECTIVO!
-PERIODO DE CAMBIA EN 15 DIAS!SALVO TARA.
-MUCHAS GRACIAS POR SU VISITA"""
-
-empresa, fecha, total = extract_data_from_text(texto)
-print("Empresa:", empresa)
-print("Fecha:", fecha)
-print("Monto Total:", total)
+def log_missing_data(file_path, data):
+    """Registrar los casos con datos faltantes."""
+    with open("errores_log.txt", "a") as log_file:
+        log_file.write(f"Archivo: {file_path} - Datos incompletos: {data}\n")
 
 def process_image(image_path, lang='spa'):
     """Procesar una imagen y extraer texto usando Tesseract OCR."""
@@ -108,6 +105,10 @@ def process_image(image_path, lang='spa'):
     # Filtrar los datos relevantes (empresa, fecha, monto)
     empresa, fecha, total = extract_data_from_text(text)
 
+    # Si falta algún dato, registrar el error
+    if empresa == "No encontrado" or fecha == "No encontrado" or total == "Monto no encontrado":
+        log_missing_data(image_path, {"empresa": empresa, "fecha": fecha, "total": total})
+    
     # Imprimir los datos extraídos
     print(f"Datos extraídos de {image_path}:")
     print(f"Empresa: {empresa}")

@@ -1,0 +1,8 @@
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\cuarta.jpg - Datos incompletos: {'empresa': 'RU', 'fecha': 'No encontrado', 'total': 'Monto no encontrado'}
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\tercera.jpg - Datos incompletos: {'empresa': 'Sl PULKTO Pr', 'fecha': 'No encontrado', 'total': 'Monto no encontrado'}
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\cuarta.jpg - Datos incompletos: {'empresa': 'RU', 'fecha': 'Fecha no encontrada', 'total': 'Monto no encontrado'}
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\tercera.jpg - Datos incompletos: {'empresa': 'Sl PULKTO Pr', 'fecha': 'No encontrado', 'total': 'Monto no encontrado'}
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\cuarta.jpg - Datos incompletos: {'empresa': 'RU', 'fecha': 'No encontrado', 'total': 'Monto no encontrado'}
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\tercera.jpg - Datos incompletos: {'empresa': 'Sl PULKTO Pr', 'fecha': 'No encontrado', 'total': 'Monto no encontrado'}
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\cuarta.jpg - Datos incompletos: {'empresa': 'RU', 'fecha': 'No encontrado', 'total': 'Monto no encontrado'}
+Archivo: C:\Users\MIGUE\OneDrive\Desktop\imagenes\tercera.jpg - Datos incompletos: {'empresa': 'Sl PULKTO Pr', 'fecha': 'No encontrado', 'total': 'Monto no encontrado'}
